@@ -6,6 +6,9 @@ public class gameController : MonoBehaviour
     Tile currentTile;
     Tile[,] tileGrid;
 
+    public GameObject actionBar;
+    int status; //0 = neutral, 1 = selected food, 2 = aiming ability, 3 = moving
+
     class Tile
     {
         public GameObject occupant;
@@ -21,17 +24,20 @@ public class gameController : MonoBehaviour
 
     void Start()
     {
-        tileGrid = new Tile[3,5];
+        //Setup tileGrid
+        tileGrid = new Tile[3, 5];
         for (int i = 0; i < 3; i++)
         {
             for (int j = 0; j < 5; j++)
             {
-                tileGrid[i, j] = new Tile(i,j);
+                tileGrid[i, j] = new Tile(i, j);
             }
         }
 
-        currentTile = tileGrid[1, 2];
-        addOccupant(currentTile, Resources.Load("Food"));
+        currentTile = null;
+        addOccupant(tileGrid[1, 2], Resources.Load("Food"));
+
+        actionBar.SetActive(false);
     }
 
     void Update()
@@ -41,13 +47,60 @@ public class gameController : MonoBehaviour
 
     void addOccupant(Tile t, Object o)
     {
-        t.occupant = Instantiate(o, new Vector3(t.i - 1,t.j - 2,0) * 1.5f, transform.rotation) as GameObject;
+        t.occupant = Instantiate(o, new Vector3(t.i - 1, t.j - 2, 0) * 1.5f, transform.rotation) as GameObject;
     }
 
-    public void selectTile(int tile)
+    public void setStatus(int s) //For interaction with ability/move buttons
     {
-        currentTile = tileGrid[tile % 10,Mathf.FloorToInt(tile/10)]; //Int -> array position
+        status = s;
+    }
 
-        addOccupant(currentTile, Resources.Load("Food"));
+    public void selectTile(int tile) //Called when a tile is clicked
+    {
+        Tile selectedTile = tileGrid[tile % 10, Mathf.FloorToInt(tile / 10)]; //Int -> array position
+
+        if (selectedTile == currentTile)
+        {
+            status = 0;
+        }
+        else
+        {
+            if (status <= 1)
+            {
+                currentTile = selectedTile;
+                
+                if (currentTile.occupant != null)
+                {
+                    actionBar.SetActive(true);
+                    status = 1;
+                }
+                else
+                {
+                    status = 0;
+                }
+            }
+            else if (status == 2)
+            {
+                Debug.Log("Used ability at " + selectedTile.i + ", " + selectedTile.j);
+
+                status = 0;
+            }
+            else if (status == 3)
+            {
+                if (selectedTile.occupant == null)
+                {
+                    addOccupant(selectedTile, currentTile.occupant);
+                    Destroy(currentTile.occupant);
+                    //currentTile.occupant = null;
+                    status = 0;
+                }
+            }
+        }
+
+        if (status == 0)
+        {
+            actionBar.SetActive(false);
+            currentTile = null;
+        }
     }
 }
