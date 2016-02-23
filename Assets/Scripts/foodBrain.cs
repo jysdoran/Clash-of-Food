@@ -3,14 +3,17 @@ using System.Collections;
 
 public class foodBrain : MonoBehaviour
 {
+    gameController.Tile myTile;
+    public gameController controller;
 
-    void Start()
+    public void useActive(gameController.Tile t)
     {
-
+        BroadcastMessage("activeAbility",t);
     }
 
-    void Update()
+    public void usePassive(gameController.Tile t)
     {
-
+        BroadcastMessage("passiveAbility",t);
     }
+
 }

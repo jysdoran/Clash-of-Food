@@ -9,7 +9,7 @@ public class gameController : MonoBehaviour
     public GameObject actionBar;
     int status; //0 = neutral, 1 = selected food, 2 = aiming ability, 3 = moving
 
-    class Tile
+    public class Tile
     {
         public GameObject occupant;
         public int i;
@@ -36,6 +36,8 @@ public class gameController : MonoBehaviour
 
         currentTile = null;
         addOccupant(tileGrid[1, 2], Resources.Load("Food"));
+
+        addOccupant(tileGrid[2, 2], Resources.Load("Food"));
 
         actionBar.SetActive(false);
     }
@@ -82,6 +84,7 @@ public class gameController : MonoBehaviour
             else if (status == 2)
             {
                 Debug.Log("Used ability at " + selectedTile.i + ", " + selectedTile.j);
+                currentTile.occupant.GetComponent<foodBrain>().useActive(selectedTile);
 
                 status = 0;
             }
